@@ -1,5 +1,5 @@
 from datetime import datetime
-import cv2, time, pandas
+import cv2, time, pandas, plotting
 
 video = cv2.VideoCapture(0)
 
@@ -30,12 +30,15 @@ while True:
             cv2.rectangle(frame, (x,y), (x+width,y+height), (0,255,0), 3)
 
     status_list.append(status)
+    status_list = status_list[-2:]
 
     if status_list[-1] == 1 and status_list[-2] == 0:
         times.append(datetime.now())
 
     if status_list[-1] == 0 and status_list[-2] == 1:
         times.append(datetime.now())
+
+
 
     cv2.imshow("Gray Blurred Frame", gray)
     cv2.imshow("Delta Frame", delta_frame)
@@ -52,7 +55,6 @@ df = pandas.DataFrame(columns=["Start", "End"])
 for i in range(0, len(times), 2):
     df = df.append({"Start":times[i], "End":times[i+1]}, ignore_index=True)
 
-df.to_csv("Times.csv")
-
 video.release()
-cv2.destroyAllWindows
+cv2.destroyAllWindows()
+plotting.show_motion_graph(df)
